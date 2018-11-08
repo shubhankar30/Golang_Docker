@@ -1,11 +1,7 @@
-FROM golang:1.6
+FROM golang:1.8
 
-# Install beego and the bee dev tool
-RUN go get github.com/astaxie/beego && go get github.com/beego/bee
+ADD . go/src/temp
 
-# Expose the application on port 8080
+RUN go build go/src/temp/main.go
+
 EXPOSE 8080
-
-# Set the entry point of the container to the bee command that runs the
-# application and watches for changes
-CMD ["bee", "run"]
