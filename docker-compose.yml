@@ -5,9 +5,9 @@ services:
     ports:
     - "8080:8080"
     volumes:
-      - ./static/stylesheets
-      - ./templates
-    command: bash -c 'cd go/src/temp && go run main.go'
+      - ./static:/go/src/temp/static
+      - ./templates:/go/src/temp/templates
+    command: bash -c 'cd /go/src/temp && go run main.go'
     
 
 
