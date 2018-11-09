@@ -1,0 +1,14 @@
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+    - "8080:8080"
+    volumes:
+      - ./static/stylesheets
+      - ./templates
+    command: bash -c 'cd go/src/temp && go run main.go'
+    
+
+
+

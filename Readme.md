@@ -18,6 +18,9 @@ Or the exec file can be passed during runtime
 In lessontime, main.go is build in docker file, and to execute it, docker compose is used 
 
 
+docker build -t test .
+
+(test is image name)
 
 1. 
 - Go build main.go     ---> Creates main exec file 

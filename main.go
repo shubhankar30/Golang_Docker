@@ -20,7 +20,7 @@ func main(){
 
 	welcome := Welcome{"Anonymous", time.Now().Format(time.Stamp)}
 
-	templates := template.Must(template.ParseFiles("go/src/temp/templates/welcome.html"))
+	templates := template.Must(template.ParseFiles("templates/welcome.html"))
 
 	http.Handle("/static/", //final url can be anything
 	http.StripPrefix("/static/",
