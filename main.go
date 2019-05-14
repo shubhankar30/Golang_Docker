@@ -1,51 +1,73 @@
 package main
 
-import(
+import (
+	"database/sql"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"html/template"
+	"log"
 	"net/http"
 	"time"
-	"html/template"
 )
 
-type Welcome struct{
+type Welcome struct {
 	Name string
 	Time string
 }
 
-func handler(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintf(w, "TEST %s",r.URL.Path[1:])
+func handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "TEST %s", r.URL.Path[1:])
 }
 
-func main(){
+func main() {
 
-	welcome := Welcome{"Anonymous", time.Now().Format(time.Stamp)}
+	router := gin.Default()
+	router.Use(static.Serve("/", static.LocalFile("./views", true)))
 
-	templates := template.Must(template.ParseFiles("templates/welcome.html"))
-
-	http.Handle("/static/", //final url can be anything
-	http.StripPrefix("/static/",
-	   http.FileServer(http.Dir("static")))) //Go looks in the relative "static" directory first using http.FileServer(), then matches it to a
-	   //url of our choice as shown in http.Handle("/static/"). This url is what we need when referencing our css files
-	   //once the server begins. Our html code would therefore be <link rel="stylesheet"  href="/static/stylesheet/...">
-	   //It is important to note the url in http.Handle can be whatever we like, so long as we are consistent.
-
- //This method takes in the URL path "/" and a function that takes in a response writer, and a http request.
- http.HandleFunc("/" , func(w http.ResponseWriter, r *http.Request) {
-
-	//Takes the name from the URL query e.g ?name=Martin, will set welcome.Name = Martin.
-	if name := r.FormValue("name"); name != "" {
-	   welcome.Name = name;
+	cnn, err := sql.Open("mysql", "docker:docker@tcp(db:3306)/test_db")
+	if err != nil {
+		log.Fatal(err)
 	}
-	//If errors show an internal server error message
-	//I also pass the welcome struct to the welcome-template.html file.
-	if err := templates.ExecuteTemplate(w, "welcome.html", welcome); err != nil {
-	   http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
- })
+	id := 1
+	var name string
 
- //Start the web server, set the port to listen to 8080. Without a path it assumes localhost
- //Print any errors from starting the webserver using fmt
- fmt.Println("Listening");
- fmt.Println(http.ListenAndServe(":8080", nil));
+	if err := cnn.QueryRow("SELECT name FROM test_tb WHERE id = ? LIMIT 1", id).Scan(&name); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(id, name)
+
+	// welcome := Welcome{"Anonymous", time.Now().Format(time.Stamp)}
+
+	// templates := template.Must(template.ParseFiles("templates/welcome.html"))
+
+	// http.Handle("/static/", //final url can be anything
+	// 	http.StripPrefix("/static/",
+	// 		http.FileServer(http.Dir("static")))) //Go looks in the relative "static" directory first using http.FileServer(), then matches it to a
+	// //url of our choice as shown in http.Handle("/static/"). This url is what we need when referencing our css files
+	// //once the server begins. Our html code would therefore be <link rel="stylesheet"  href="/static/stylesheet/...">
+	// //It is important to note the url in http.Handle can be whatever we like, so long as we are consistent.
+
+	// //This method takes in the URL path "/" and a function that takes in a response writer, and a http request.
+	// http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+	// 	//Takes the name from the URL query e.g ?name=Martin, will set welcome.Name = Martin.
+	// 	if name := r.FormValue("name"); name != "" {
+	// 		welcome.Name = name
+	// 	}
+	// 	//If errors show an internal server error message
+	// 	//I also pass the welcome struct to the welcome-template.html file.
+	// 	if err := templates.ExecuteTemplate(w, "welcome.html", welcome); err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 	}
+	// })
+
+	// //Start the web server, set the port to listen to 8080. Without a path it assumes localhost
+	// //Print any errors from starting the webserver using fmt
+	// fmt.Println("Listening")
+	// fmt.Println(http.ListenAndServe(":8080", nil))
+
+	router.Run(":3000")
 
 }

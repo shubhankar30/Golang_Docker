@@ -1,13 +1,29 @@
 version: '3'
 services:
+  db:
+    build:
+      context: ./MySQL
+    image: mysql
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+    tty: true
   web:
     build: .
     ports:
     - "8080:8080"
     volumes:
       - ./static:/go/src/temp/static
-      - ./templates:/go/src/temp/templates
+      - ./views:/go/src/temp/views
     command: bash -c 'cd /go/src/temp && go run main.go'
+    depends_on:
+      - "db"
+
     
 
 
